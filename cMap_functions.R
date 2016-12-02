@@ -10,6 +10,7 @@
 #Libraries#
 ###########
 library("data.table")
+library("stringr")
 library("GeneExpressionSignature")
 ###########
 
@@ -67,4 +68,16 @@ cMap.eset<- function(RankedMatrix, SampleInfoFile){
   #make the ExpressionSet
   eset = ExpressionSet(assayData = as.matrix(RankedMatrix), phenoData = cMapAFD)
   return(eset)
+}
+
+######
+# read.Drugs
+# helper function to read and format a drug list file
+# 
+######
+
+read.Drugs<- function(DrugList){
+  drugList = read.table(file = DrugList)
+  drugList = drugList$V1
+  drugList = str_to_upper(drugList)
 }
