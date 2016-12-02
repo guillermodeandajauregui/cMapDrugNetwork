@@ -56,6 +56,7 @@ DrugList = read.Drugs(DrugFile)
 DrugEset = drug.eset(RankedMatrix, SampleInfoFile, DrugList)
 
 #########################################
+# Kruskal Algorithm - Borda Merging 
 #Kru-Bor merge samples by drug
 #########################################
 mergedset = RankMerging(DrugEset)
