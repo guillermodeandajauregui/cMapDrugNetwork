@@ -81,3 +81,22 @@ read.Drugs<- function(DrugList){
   drugList = drugList$V1
   drugList = str_to_upper(drugList)
 }
+
+#######
+# Drug.Gene.Graph
+# Takes a Kru-Bor merged set of ranked differentially expressed genes 
+# after drug treatment
+# and a threshold
+# Returns a directed, weighted network from DRUGS to GENES
+#######
+
+Drug.Gene.Graph <- function(MergedDrugEset, Threshold){
+  DrugGraph = exprs(MergedDrugEset)
+  minz = Threshold
+  maxz = max(DrugGraph) - Threshold
+  DrugGraph <- ifelse(minz>=DrugGraph | DrugGraph>maxz, 1, 0)
+  DrugGraph = graph_from_incidence_matrix(incidence = DrugGraph, 
+                                          directed = TRUE, 
+                                          mode = "in")
+  return(DrugGraph)
+}
