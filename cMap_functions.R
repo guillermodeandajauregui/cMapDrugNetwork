@@ -40,14 +40,14 @@ drug.eset<- function(RankedMatrix, SampleInfoFile, DrugList){
   #make a subset of the RankedMatrix, containing only these Ids
   Drug.RankMatrix = RankedMatrix[,as.character(DrugInstances)]
   #dummy eset, to force sample order
-  eset = ExpressionSet(assayData = as.matrix(RankedMatrix))
+  eset = ExpressionSet(assayData = as.matrix(Drug.RankMatrix))
   #make drug annotation object for the ExpressionSet
   DrugData = SampleInfoFile[which(SampleInfoFile$instance_id%in%colnames(exprs(eset))), c(1, 4)] #id, drugname
   rownames(DrugData) = DrugData[,1]
   DrugData = DrugData[,-1, drop = FALSE]
   DrugAFD = new("AnnotatedDataFrame", data = DrugData)
   #make the ExpressionSet
-  eset = ExpressionSet(assayData = as.matrix(RankedMatrix), phenoData = DrugAFD)
+  eset = ExpressionSet(assayData = as.matrix(Drug.RankMatrix), phenoData = DrugAFD)
   return(eset)
 }
 
