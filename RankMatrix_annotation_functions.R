@@ -75,25 +75,21 @@ AnnotateAggregator <- function(RankMatrix, Chip="hgu133a.db", Method="Median"){
 #Either Max or Median aggregated
 #######################################
 
-AnnotateAggregator <- function(RankMatrix, CustomAnnotation, Method="Median"){
+CustomAggregator <- function(RankMatrix, CustomAnnotation, Method="Median"){
   x = as.data.frame(RankMatrix) #make sure RankMatrix behaves like DataFrame
   genesymbols<-data.frame()
-  genesymbols<-cbind(Merged_Annotation_Data$AffyID[match(x = rownames(x), 
+  #CustomAnnotation must be a data frame with column "AffyID" and column "Symbol"
+  genesymbols<-cbind(CustomAnnotation$AffyID[match(x = rownames(x), 
                                                          table = Merged_Annotation_Data$AffyID)],
                      Merged_Annotation_Data$Symbol[match(x = rownames(x), 
                                                          table = Merged_Annotation_Data$AffyID)]
-  )
+                    )
   sym<-as.data.frame(genesymbols, 
                      stringsAsFactors = FALSE)
   rownames(sym)<-sym[,1]
   sym<-sym[,-1, drop = FALSE]
-  
-  #genesymbols<-data.frame() #will contain genesymbols
-  #genesymbols<-(getSYMBOL(as.character(rownames(x)), 
-                          Chip)
-  ) #takes symbols from Affymetrix database; if no gene symbol in annotation, returns NA
-  #sym<-as.data.frame(genesymbols)
-  x$GS<-genesymbols #will add a column with gene symbols ; if no gene symbol in annotation, returns NA
+  rownames(x)<-rownames(sym)
+  x$GS<-sym$V2
   x$GS<-ifelse(is.na(x$GS), 
                as.vector(rownames(x)), 
                as.vector(x$GS)
