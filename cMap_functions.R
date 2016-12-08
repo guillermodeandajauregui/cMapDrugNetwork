@@ -101,3 +101,30 @@ Drug.Gene.Graph <- function(MergedDrugEset, Threshold){
                                           mode = "in")
   return(DrugGraph)
 }
+
+######################################
+# TopBottomComparer
+# Compares Top and Bottom Genes
+# Which are the neighbors of drugs in
+# The bipartite graph
+######################################
+
+TopBottomComparer <-function(G1, G2, NodeList, listed = FALSE){
+#Make sure NodeList follows a determined order; 
+  #not important here,
+  #but very important if you are comparing non-Graph objects
+    IntersectList<- list()
+  for(i in seq_along(NodeList)){
+    G1_neighbors = neighbors(G1, v = NodeList[i])$name
+    G2_neighbors = neighbors(G2, v = NodeList[i])$name
+    q<- intersect(G1_neighbors, G2_neighbors)
+    if(listed==TRUE){
+      IntersectList<-c(IntersectList, q)
+    }
+    else{
+      IntersectList<-c(IntersectList, length(q))
+    }
+  }
+    return(IntersectList)
+}
+
