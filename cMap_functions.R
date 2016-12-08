@@ -120,9 +120,11 @@ TopBottomComparer <-function(G1, G2, NodeList, listed = FALSE){
     q<- intersect(G1_neighbors, G2_neighbors)
     if(listed==TRUE){
       IntersectList<-c(IntersectList, q)
+      names(IntersectList)[i] <- NodeList[i]
     }
     else{
       IntersectList<-c(IntersectList, length(q))
+      names(IntersectList)[i] <- NodeList[i]
     }
   }
     return(IntersectList)
