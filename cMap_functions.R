@@ -12,6 +12,7 @@
 library("data.table")
 library("stringr")
 library("GeneExpressionSignature")
+library("igraph")
 ###########
 
 ######
