@@ -59,8 +59,8 @@ AnnotateAggregator <- function(RankMatrix, Chip="hgu133a.db", Method="Median"){
   else{
     if(Method=="Max"){
       x.max <- aggregate(. ~ GS, data = x, max) #Agregar valores de Genesymbol por mediana#
-      rownames(x.max)<-x.med$GS
-      y.med<-x.max[,-1]
+      rownames(x.max)<-x.max$GS
+      y.max<-x.max[,-1]
       return(y.max)
     }
   }
@@ -103,8 +103,8 @@ CustomAggregator <- function(RankMatrix, CustomAnnotation, Method="Median"){
   else{
     if(Method=="Max"){
       x.max <- aggregate(. ~ GS, data = x, max) #Agregar valores de Genesymbol por mediana#
-      rownames(x.max)<-x.med$GS
-      y.med<-x.max[,-1]
+      rownames(x.max)<-x.max$GS
+      y.max<-x.max[,-1]
       return(y.max)
     }
   }
