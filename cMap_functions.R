@@ -88,7 +88,7 @@ read.Drugs<- function(DrugList){
 # Takes a Kru-Bor merged set of ranked differentially expressed genes 
 # after drug treatment
 # and a threshold
-# Returns a directed, weighted network from DRUGS to GENES
+# Returns a directed, unweighted network from DRUGS to GENES
 #######
 
 Drug.Gene.Graph <- function(MergedDrugEset, Threshold){
@@ -157,4 +157,31 @@ TopBottomSetDiff <-function(G1, G2, NodeList, listed = FALSE){
     }
   }
   return(IntersectList)
+}
+
+#######
+# Drug.Gene.Sign.Graph
+# Takes a Kru-Bor merged set of ranked differentially expressed genes 
+# after drug treatment
+# and a threshold
+# Returns a directed, weighted network from DRUGS to GENES
+#with weight being either "plus" or "minus"
+#interpretable as an activation or repression of said GENE expression
+#by DRUG
+#######
+
+Drug.Gene.Sign.Graph <- function(MergedDrugEset, Threshold){
+  DrugGraph = exprs(MergedDrugEset)
+  minz = Threshold
+  maxz = max(DrugGraph) - Threshold
+  
+  DrugGraph<-ifelse(minz>=DrugGraph, -1, 
+                    ifelse(DrugGraph>maxz, 1,
+                           0)
+  )
+  DrugGraph = graph_from_incidence_matrix(incidence = DrugGraph, 
+                                          directed = TRUE, 
+                                          mode = "in",
+                                          weighted = TRUE)
+  return(DrugGraph)
 }
