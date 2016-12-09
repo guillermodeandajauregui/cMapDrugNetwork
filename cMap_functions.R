@@ -185,3 +185,19 @@ Drug.Gene.Sign.Graph <- function(MergedDrugEset, Threshold){
                                           weighted = TRUE)
   return(DrugGraph)
 }
+
+#######
+# ConnectedComponentMembership
+# Takes a graph (and optionally, a components object, default to components(graph))
+# and a minimum Component Size (default 1)
+#returns a list with the NAMES of NODES in each component.
+#######
+
+ConnectedComponentMembership<-function(graph, 
+                                       ComponentObject= components(graph), 
+                                       ComponentSize = 1){
+  q = lapply(seq_along(ComponentObject$csize)[ComponentObject$csize>=ComponentSize],
+             function(x) V(graph)$name[q$membership%in%x]
+  )
+  return(q)
+}
