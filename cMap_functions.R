@@ -201,3 +201,44 @@ ConnectedComponentMembership<-function(graph,
   )
   return(q)
 }
+
+#######
+# ActivatorsInhibitors
+# Takes a graph (and optionally, a set of GENE vertices)
+#returns a DataFrame with the number of activators and inhibitors
+#For said gene.
+#######
+
+ActivatorsInhibitors <- function(DrugGraph, 
+                                 nodes=V(DrugGraph)[V(DrugGraph)$type!=TRUE]){
+  
+  df = data.frame(gene = as.character(),
+                  activators = as.numeric(),
+                  inhibitors = as.numeric(),
+                  stringsAsFactors = FALSE
+  )
+  
+  for(i in seq_along(nodes)){
+    gen = nodes[i]$name
+    Nhoods = ego(graph = DrugGraph, 
+                 order = 1, 
+                 nodes = gen, 
+                 mode = "in")
+    Nhood_sb = induced.subgraph(graph = DrugGraph, 
+                                vids = unlist(Nhoods)
+    )
+    activator = 0
+    inhibitor = 0
+    for(j in E(Nhood_sb)$weight){
+      if(j==1){
+        activator=activator+1
+      }else
+        if(j==-1){
+          inhibitor=inhibitor+1
+        }
+    }
+    k=list(gen, activator, inhibitor)
+    df[i,]<-k
+  }
+  return(df)
+}
