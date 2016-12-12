@@ -242,3 +242,18 @@ ActivatorsInhibitors <- function(DrugGraph,
   }
   return(df)
 }
+
+#######
+# ConnectedNotes
+# Takes a graph 
+# Removes nodes with degree < 1
+#
+#######
+
+ConnectedNodes = function(graph){
+  g = graph
+  V(g)$Degree = degree(g)
+  V(g)[Degree<1]
+  gg = induced_subgraph(graph = g, v = V(g)[Degree>0])
+  return(gg)
+}
