@@ -187,6 +187,37 @@ Drug.Gene.Sign.Graph <- function(MergedDrugEset, Threshold){
 }
 
 #######
+# Drug.Gene.Sign.Graph.for.multi
+# Takes Expression matrix from 
+# Kru-Bor merged eset, merged set of ranked differentially expressed genes 
+# after drug treatment
+# and a threshold
+# Returns a directed, weighted network from DRUGS to GENES
+#with weight being either "plus" or "minus"
+#interpretable as an activation or repression of said GENE expression
+#by DRUG
+#Re write of function for efficiency in Threshold evaluation
+#######
+
+Drug.Gene.Sign.Graph.for.multi <- function(ExprsMergedDrugEset, Threshold, MaxDrugraph){
+  #DrugGraph = exprs(MergedDrugEset)
+  #minz = Threshold
+  maxz = MaxDrugraph - Threshold
+  
+  ExprsMergedDrugEset<-ifelse(Threshold>=ExprsMergedDrugEset, -1, 
+                    ifelse(ExprsMergedDrugEset>maxz, 1,
+                           0)
+  )
+  
+  return(graph_from_incidence_matrix(incidence = ExprsMergedDrugEset, 
+                                          directed = TRUE, 
+                                          mode = "in",
+                                          weighted = TRUE)
+  )
+  
+}
+
+#######
 # ConnectedComponentMembership
 # Takes a graph (and optionally, a components object, default to components(graph))
 # and a minimum Component Size (default 1)
