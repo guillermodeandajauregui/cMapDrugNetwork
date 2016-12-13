@@ -379,3 +379,17 @@ nw_analysis_function_df<-function(network_list){
   rownames(nwan3) = names(network_list)
   return(nwan3)
 }
+
+#######
+# mc_nw_analysis_function_df
+# Handy function to get some general network parameters
+# Returns a dataframe.
+# multicore version
+#######
+nw_analysis_function_df<-function(network_list, cores){
+  nwan = mclapply(network_list, FUN = nw_analysis_function, mc.cores = cores)
+  nwan2 = rbindlist(nwan)
+  nwan3 = as.data.frame(nwan2)
+  rownames(nwan3) = names(network_list)
+  return(nwan3)
+}
