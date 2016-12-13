@@ -244,6 +244,54 @@ ActivatorsInhibitors <- function(DrugGraph,
 }
 
 #######
+# NodeDirStrength
+# takes network and node
+# returns sum of edges adyacent to node
+#if given more than one node, will sum edges adyacent to ALL
+#probably you don't want that. Use lapply (X = NODES instead)
+#######
+
+NodeDirStrength = function(graph, node, act.or.inhib = "act"){
+  hood = ego(graph = graph, 
+             order = 1, 
+             nodes = node, 
+             mode = "in"
+  )  
+  
+  nhood = induced.subgraph(graph = graph, 
+                           vids = unlist(hood))
+  if(act.or.inhib=="act"){
+    a = 1
+  }else
+    if(act.or.inhib=="inhib"){
+      a=-1
+    }
+  s = which(E(nhood)$weight==a)
+  activation= sum(E(nhood)$weight[s])
+  return(abs(activation))
+}
+
+#######
+#SetNodesDirStrength
+#A wrapper for the last function over a set of nodes
+#if unlist = TRUE, returns vector of strengths
+#else, a list
+#######
+SetNodesDirStrength<-function(NodeSet, graph, unlist = FALSE, act.or.inhib = "act"){
+  if(unlist == FALSE){
+    return(lapply(X = NodeSet, 
+                  FUN = NodeDirStrength, 
+                  act.or.inhib=act.or.inhib, 
+                  graph = graph))
+  }else
+  return(unlist(lapply(X = NodeSet, 
+                       FUN = NodeDirStrength, 
+                       act.or.inhib=act.or.inhib, 
+                       graph = graph)))
+}
+
+
+#######
 # ConnectedNotes
 # Takes a graph 
 # Removes nodes with degree < 1
@@ -253,7 +301,50 @@ ActivatorsInhibitors <- function(DrugGraph,
 ConnectedNodes = function(graph){
   g = graph
   V(g)$Degree = degree(g)
-  V(g)[Degree<1]
   gg = induced_subgraph(graph = g, v = V(g)[Degree>0])
   return(gg)
+}
+
+#######
+# nw_analysis_function
+# Handy function to get some general network parameters
+#
+#######
+
+nw_analysis_function <- function(network){
+  g = ConnectedNodes(network)
+  nodes = length(V(g))
+  Drugs = length(V(g)[V(g)$type==TRUE])
+  Genes = length(V(g)[V(g)$type==FALSE])
+  Edges = length(E(g))
+  cc = components(g)$no
+  max.degree = max(degree(graph = g, 
+                          v = V(g)[V(g)$type==FALSE]))
+  max.activation = max(SetNodesDirStrength(graph = g, 
+                                           NodeSet = V(g)[V(g)$type==FALSE], 
+                                           unlist = TRUE, 
+                                           act.or.inhib = "act")
+  )
+  max.inhibition = max(SetNodesDirStrength(graph = g, 
+                                           NodeSet = V(g)[V(g)$type==FALSE], 
+                                           unlist = TRUE, 
+                                           act.or.inhib = "inhib")
+  )
+  results = list(nodes, Drugs, Genes, Edges, cc, max.degree, max.activation, max.inhibition)
+  names(results) = c("nodes", "drugs", "genes", "edges", "cc", "degree", "act", "inhib")
+  return(results)
+}
+
+#######
+# nw_analysis_function_df
+# Handy function to get some general network parameters
+# Returns a dataframe.
+#
+#######
+nw_analysis_function_df<-function(network_list){
+  nwan = lapply(network_list, FUN = nw_analysis_function)
+  nwan2 = rbindlist(nwan)
+  nwan3 = as.data.frame(nwan2)
+  rownames(nwan3) = names(network_list)
+  return(nwan3)
 }
