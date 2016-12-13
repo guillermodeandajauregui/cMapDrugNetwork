@@ -386,7 +386,7 @@ nw_analysis_function_df<-function(network_list){
 # Returns a dataframe.
 # multicore version
 #######
-nw_analysis_function_df<-function(network_list, cores){
+mc_nw_analysis_function_df<-function(network_list, cores){
   nwan = mclapply(network_list, FUN = nw_analysis_function, mc.cores = cores)
   nwan2 = rbindlist(nwan)
   nwan3 = as.data.frame(nwan2)
