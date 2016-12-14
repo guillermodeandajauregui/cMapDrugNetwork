@@ -513,3 +513,17 @@ ListShuffleRanks = function(matrix, n=100){
                                                    simplify = FALSE))  
 }
 
+##EXPERIMENTAL DEGREE FUNCTIONS
+degree_function<-function(graph){
+  return(degree(graph = graph, v = V(graph)[V(graph)$type==FALSE]))
+}
+
+
+
+degree_table_function <- function(GraphList){
+  return(as.data.frame(
+    lapply(
+      GraphList, 
+      degree_function)))
+}
+
