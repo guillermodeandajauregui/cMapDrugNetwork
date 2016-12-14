@@ -217,6 +217,7 @@ Drug.Gene.Sign.Graph.for.multi <- function(ExprsMergedDrugEset, Threshold, MaxDr
   
 }
 
+
 #######
 # ConnectedComponentMembership
 # Takes a graph (and optionally, a components object, default to components(graph))
@@ -335,6 +336,38 @@ ConnectedNodes = function(graph){
   gg = induced_subgraph(graph = g, v = V(g)[Degree>0])
   return(gg)
 }
+#######
+# Drug.Gene.Sign.Graph.Connected.for.multi
+# Takes Expression matrix from 
+# Kru-Bor merged eset, merged set of ranked differentially expressed genes 
+# after drug treatment
+# and a threshold
+# Returns a directed, weighted network from DRUGS to GENES
+#with weight being either "plus" or "minus"
+#interpretable as an activation or repression of said GENE expression
+#by DRUG
+#Removing all GENES that do not connect to DRUGS
+#Re write of function for efficiency in Threshold evaluation
+#######
+
+Drug.Gene.Sign.Graph.Connected.for.multi <- function(ExprsMergedDrugEset, Threshold, MaxDrugraph){
+  #DrugGraph = exprs(MergedDrugEset)
+  #minz = Threshold
+  maxz = MaxDrugraph - Threshold
+  
+  ExprsMergedDrugEset<-ifelse(Threshold>=ExprsMergedDrugEset, -1, 
+                              ifelse(ExprsMergedDrugEset>maxz, 1,
+                                     0)
+  )
+  
+  return(ConnectedNodes(graph = graph_from_incidence_matrix(incidence = ExprsMergedDrugEset, 
+                                      directed = TRUE, 
+                                      mode = "in",
+                                      weighted = TRUE)
+                        )
+  )
+  
+}
 
 #######
 # nw_analysis_function
@@ -366,7 +399,6 @@ nw_analysis_function <- function(network){
   return(results)
 }
 
-#######
 # nw_analysis_function_df
 # Handy function to get some general network parameters
 # Returns a dataframe.
@@ -393,3 +425,91 @@ mc_nw_analysis_function_df<-function(network_list, cores){
   rownames(nwan3) = names(network_list)
   return(nwan3)
 }
+
+#######
+# nw_analysis_function2
+# Handy function to get some general network parameters
+# modified for graphs with unconnected nodes already removed
+#
+#######
+
+nw_analysis_function2 <- function(g){
+  #g = ConnectedNodes(network)
+  nodes = length(V(g))
+  Drugs = length(V(g)[V(g)$type==TRUE])
+  Genes = length(V(g)[V(g)$type==FALSE])
+  GENES = V(g)[V(g)$type==FALSE]
+  Edges = length(E(g))
+  cc = components(g)$no
+  max.degree = max(degree(graph = g, 
+                          v = GENES))
+  max.activation = max(SetNodesDirStrength(graph = g, 
+                                           NodeSet = GENES, 
+                                           unlist = TRUE, 
+                                           act.or.inhib = "act")
+  )
+  max.inhibition = max(SetNodesDirStrength(graph = g, 
+                                           NodeSet = GENES, 
+                                           unlist = TRUE, 
+                                           act.or.inhib = "inhib")
+  )
+  results = list(nodes, Drugs, Genes, Edges, cc, max.degree, max.activation, max.inhibition)
+  names(results) = c("nodes", "drugs", "genes", "edges", "cc", "degree", "act", "inhib")
+  return(results)
+}
+#######
+
+#######
+# nw_analysis_function2_df
+# Handy function to get some general network parameters
+# Returns a dataframe.
+#
+#######
+nw_analysis_function2_df<-function(network_list){
+  nwan = lapply(network_list, FUN = nw_analysis_function2)
+  nwan2 = rbindlist(nwan)
+  nwan3 = as.data.frame(nwan2)
+  rownames(nwan3) = names(network_list)
+  return(nwan3)
+}
+
+#######
+# mc_nw_analysis_function2_df
+# Handy function to get some general network parameters
+# Returns a dataframe.
+# multicore version
+#######
+mc_nw_analysis_function2_df<-function(network_list, cores){
+  nwan = mclapply(network_list, FUN = nw_analysis_function2, mc.cores = cores)
+  nwan2 = rbindlist(nwan)
+  nwan3 = as.data.frame(nwan2)
+  rownames(nwan3) = names(network_list)
+  return(nwan3)
+}
+
+#######
+# ShuffleRanks
+# Takes a RankedMatrix
+# Shuffles rank values for each sample.
+# 
+#######
+
+ShuffleRanks = function(y){
+  yy = apply(y, MARGIN = 2, FUN = function(x) x[sample(x = x, size = length(x), replace = FALSE)])
+  rownames(yy) <- rownames(y)
+  return(yy)
+}
+
+#######
+# ListShuffleRanks
+# Takes a RankedMatrix
+# Returns a list of n matrices with shuffled rank values
+# 
+#######
+
+ListShuffleRanks = function(matrix, n=100){
+  list_Shuffled = do.call(what = list, args = replicate(n = n, 
+                                                   expr = ShuffleRanks(matrix), 
+                                                   simplify = FALSE))  
+}
+
