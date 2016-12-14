@@ -175,8 +175,8 @@ Drug.Gene.Sign.Graph <- function(MergedDrugEset, Threshold){
   minz = Threshold
   maxz = max(DrugGraph) - Threshold
   
-  DrugGraph<-ifelse(minz>=DrugGraph, -1, 
-                    ifelse(DrugGraph>maxz, 1,
+  DrugGraph<-ifelse(minz>=DrugGraph, 1, 
+                    ifelse(DrugGraph>maxz, -1,
                            0)
   )
   DrugGraph = graph_from_incidence_matrix(incidence = DrugGraph, 
@@ -204,8 +204,8 @@ Drug.Gene.Sign.Graph.for.multi <- function(ExprsMergedDrugEset, Threshold, MaxDr
   #minz = Threshold
   maxz = MaxDrugraph - Threshold
   
-  ExprsMergedDrugEset<-ifelse(Threshold>=ExprsMergedDrugEset, -1, 
-                    ifelse(ExprsMergedDrugEset>maxz, 1,
+  ExprsMergedDrugEset<-ifelse(Threshold>=ExprsMergedDrugEset, 1, 
+                    ifelse(ExprsMergedDrugEset>maxz, -1,
                            0)
   )
   
@@ -355,8 +355,8 @@ Drug.Gene.Sign.Graph.Connected.for.multi <- function(ExprsMergedDrugEset, Thresh
   #minz = Threshold
   maxz = MaxDrugraph - Threshold
   
-  ExprsMergedDrugEset<-ifelse(Threshold>=ExprsMergedDrugEset, -1, 
-                              ifelse(ExprsMergedDrugEset>maxz, 1,
+  ExprsMergedDrugEset<-ifelse(Threshold>=ExprsMergedDrugEset,  1, 
+                              ifelse(ExprsMergedDrugEset>maxz, -1,
                                      0)
   )
   
