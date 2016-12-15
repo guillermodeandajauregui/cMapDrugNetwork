@@ -309,7 +309,10 @@ NodeDirStrength = function(graph, node, act.or.inhib = "act"){
 #if unlist = TRUE, returns vector of strengths
 #else, a list
 #######
-SetNodesDirStrength<-function(NodeSet, graph, unlist = FALSE, act.or.inhib = "act"){
+SetNodesDirStrength<-function(graph, 
+                              NodeSet = V(graph)[V(graph)$type==FALSE],
+                                unlist = FALSE, 
+                              act.or.inhib = "act"){
   if(unlist == FALSE){
     return(lapply(X = NodeSet, 
                   FUN = NodeDirStrength, 
@@ -535,3 +538,60 @@ degree_table_function <- function(GraphList){
       degree_function)))))
 }
 
+
+#######
+# NodeDirStrength2
+#
+#EXPERIMENTAL
+#Better implementation
+#
+# takes network and node
+# returns sum of edges adyacent to node
+#if given more than one node, will sum edges adyacent to ALL
+#probably you don't want that. Use lapply (X = NODES instead)
+#######
+
+NodeDirStrength2 = function(graph, node, act.or.inhib = "act"){
+  if(act.or.inhib=="act"){
+    a = 1
+  }else
+    if(act.or.inhib=="inhib"){
+      a=-1
+    }
+  return(sum(E(graph)[to(node)]$weight[which((E(graph)[to(node)]$weight == a))]))
+}
+
+#######
+#Act_OR_Inhib_Degree
+#Variation of the function, in which a subgraph of 
+#######
+Act_OR_Inhib_Degree<-function(graph, act.or.inhib = "act"){
+  if(act.or.inhib == "act"){
+    g = subgraph.edges(graph,
+                       eids = E(graph)[E(graph)$weight==1],
+                       delete.vertices = FALSE)
+    return(degree(graph = g, v = V(g)[V(g)$type==FALSE])
+           )
+  }else if(act.or.inhib == "inhib"){
+    g = subgraph.edges(graph,
+                       eids = E(graph)[E(graph)$weight==-1],
+                       delete.vertices = FALSE)
+    return(degree(graph = g, v = V(g)[V(g)$type==FALSE])
+                )
+            }
+}
+
+######
+#signed_degree_table_function
+#takes a list of graphs
+#calculates the Activation or Inhibition degree of all nodes
+#returns a data.frame
+#with 
+
+signed_degree_table_function <- function(GraphList, act.or.inhib){
+  return(as.data.frame(t(as.data.frame(
+    lapply(
+      GraphList, 
+      Act_OR_Inhib_Degree, 
+      act.or.inhib = act.or.inhib)))))
+}  
