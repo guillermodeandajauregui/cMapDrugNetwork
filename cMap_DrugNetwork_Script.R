@@ -25,8 +25,8 @@ p <- add_argument(p, "--DrugList",
 p <- add_argument(p, "--Threshold",
                   help="Number of top and bottom genes to include in network",
                   default = 100)
-p <- add_argument(p, "--OutName",
-                  help="Graph Output filename")
+p <- add_argument(p, "--OutPath",
+                  help="Graph Output Path")
 
 
 argv <- parse_args(p)
@@ -76,5 +76,42 @@ G = graph_from_incidence_matrix(incidence = DrugGraph, directed = TRUE, mode = "
 #########################################
 
 write.graph(G, 
-            file = odir, 
+            file = paste0(odir, "graph.txt"), 
             format = "ncol")
+
+#########################################
+#Null model construction
+#1000 random networks
+#Same DRUGS
+#With the same number of links to 
+#Genes, randomly ranked
+#########################################
+
+list_Random = ListShuffleRanks(y, n = 1000)
+Random_Networks = mclapply(X = list_Random, mc.cores = 30,
+                           FUN = Drug.Gene.Sign.Graph.for.multi, 
+                           Threshold = 100, 
+                           MaxDrugraph = 12438)
+names(Random_Networks)<-lapply(X = 1:1000, FUN = function(x) paste0("G",x))
+
+#Gene Degree
+Random_Degree =degree_table_function(Random_Networks)
+write.table(Random_Degree, 
+            file = paste0(odir, "degree.null"), 
+            sep ="\t", quote = FALSE, 
+            row.names = FALSE, 
+            col.names = TRUE)
+#Activation Gene Degree (links to activator drugs)
+ACT_Random_Degree=signed_degree_table_function(Random_Networks, act.or.inhib = "act")
+write.table(ACT_Random_Degree, 
+            file = paste0(odir, "degree.null"), 
+            sep ="\t", quote = FALSE, 
+            row.names = FALSE, 
+            col.names = TRUE)
+#Inhibition Gene Degree
+INHIB_Random_Degree=signed_degree_table_function(Random_Networks, act.or.inhib = "inhib")
+write.table(ACT_Random_Degree, 
+            file = paste0(odir, "degree.null"), 
+            sep ="\t", quote = FALSE, 
+            row.names = FALSE, 
+            col.names = TRUE)
