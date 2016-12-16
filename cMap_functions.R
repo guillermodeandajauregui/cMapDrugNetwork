@@ -595,3 +595,18 @@ signed_degree_table_function <- function(GraphList, act.or.inhib){
       Act_OR_Inhib_Degree, 
       act.or.inhib = act.or.inhib)))))
 }  
+
+######
+#NodeTyoe
+#writes a named vector of DRUG or GENES 
+# names = node name 
+#with 
+
+
+NodeType = function(G){
+  nodes = V(G)
+  VGType = nodes$type
+  q = ifelse(test =  VGType == TRUE, "DRUG", "GENE")
+  names(q) = nodes$name
+  return(q)
+}
