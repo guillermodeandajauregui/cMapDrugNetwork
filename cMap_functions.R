@@ -78,7 +78,9 @@ cMap.eset<- function(RankedMatrix, SampleInfoFile){
 ######
 
 read.Drugs<- function(DrugList){
-  drugList = read.table(file = DrugList)
+  drugList = read.table(file = DrugList, 
+                        sep = "$" #a fake separator, to avoid problems with spaces in drug names
+                        )
   drugList = drugList$V1
   drugList = str_to_upper(drugList)
 }
