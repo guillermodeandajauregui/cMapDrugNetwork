@@ -612,3 +612,48 @@ NodeType = function(G){
   names(q) = nodes$name
   return(q)
 }
+
+######
+#Projection_Function
+#Takes a bipartite DRUG-GENE graph
+#projects to a unipartite, weighted DRUG graph
+#where two DRUGS are linked if they both UP or DOWN regulate the same GENE
+#Each gene shared is +1 in their link weight
+######
+
+
+Projection_Function<-function(graph){
+  
+  players<-V(graph)[V(graph)$type==TRUE]
+  Dg = make_empty_graph(directed = FALSE)
+  Dg = add_vertices(graph = Dg, nv = length(players), name = names(players))
+  plot(Dg)
+  
+  for(i in seq_along(players)){
+    for(j in seq_along(players)){
+      if(i != j){
+        if(j > i){
+          genes = intersect(neighbors(graph = graph, v = players[i], mode = "all")$name,
+                            neighbors(graph = graph, v = players[j], mode = "all")$name)
+          peso = 0
+          print(genes)
+          for(k in genes){
+            if(E(graph)[V(graph)[players[i]]%--%k]$weight == E(graph)[V(graph)[players[i]]%--%k]$weight){
+              peso = peso + 1
+            }
+            
+          }
+          if(peso!=0){
+            Dg<-add.edges(graph = Dg,
+                          edges = c(V(Dg)[V(Dg)$name==players[i]$name],
+                                    V(Dg)[V(Dg)$name==players[j]$name]),
+                          weight = peso
+            )
+            
+          }
+        }
+      }
+    }
+  }
+  return(Dg)
+}
