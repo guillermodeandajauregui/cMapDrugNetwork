@@ -622,38 +622,41 @@ NodeType = function(G){
 ######
 
 
-Projection_Function<-function(graph){
+Projection_Function<-function(graph, type = TRUE){
   
-  players<-V(graph)[V(graph)$type==TRUE]
-  Dg = make_empty_graph(directed = FALSE)
-  Dg = add_vertices(graph = Dg, nv = length(players), name = names(players))
-  plot(Dg)
+  ifelse(type == TRUE, players<-V(graph)[V(graph)$type==TRUE], 
+                  players<-V(graph)[V(graph)$type==FALSE])
   
-  for(i in seq_along(players)){
-    for(j in seq_along(players)){
-      if(i != j){
-        if(j > i){
-          genes = intersect(neighbors(graph = graph, v = players[i], mode = "all")$name,
-                            neighbors(graph = graph, v = players[j], mode = "all")$name)
-          peso = 0
-          print(genes)
-          for(k in genes){
-            if(E(graph)[V(graph)[players[i]]%--%k]$weight == E(graph)[V(graph)[players[i]]%--%k]$weight){
-              peso = peso + 1
-            }
-            
-          }
-          if(peso!=0){
-            Dg<-add.edges(graph = Dg,
-                          edges = c(V(Dg)[V(Dg)$name==players[i]$name],
-                                    V(Dg)[V(Dg)$name==players[j]$name]),
-                          weight = peso
-            )
-            
-          }
-        }
-      }
-    }
-  }
-  return(Dg)
+   Dg = make_empty_graph(directed = FALSE)
+   Dg = add_vertices(graph = Dg, nv = length(players), name = names(players))
+   plot(Dg)
+  
+   for(i in seq_along(players)){
+     for(j in seq_along(players)){
+       if(i != j){
+         if(j > i){
+           genes = intersect(neighbors(graph = graph, v = players[i], mode = "all")$name,
+                             neighbors(graph = graph, v = players[j], mode = "all")$name)
+           peso = 0
+           print(genes)
+           for(k in genes){
+             if(E(graph)[V(graph)[players[i]]%--%k]$weight == E(graph)[V(graph)[players[i]]%--%k]$weight){
+               peso = peso + 1
+             }
+  
+           }
+           if(peso!=0){
+             Dg<-add.edges(graph = Dg,
+                           edges = c(V(Dg)[V(Dg)$name==players[i]$name],
+                                     V(Dg)[V(Dg)$name==players[j]$name]),
+                           weight = peso
+             )
+  
+           }
+         }
+       }
+     }
+   }
+   return(Dg)
+  return(players)
 }
